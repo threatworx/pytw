@@ -48,7 +48,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'pytw'
-copyright = u"2018, Paresh Borkar"
+copyright = u"2018, ThreatWatch Inc."
 author = u"Paresh Borkar"
 
 # The version info for the project you're documenting, acts as replacement
