@@ -1,6 +1,6 @@
 
 class pytw_error(Exception):
-	""" PYTW Errors """
+    """ PYTW Errors """
     """
         :param msg: Message for the exception raised
     """
