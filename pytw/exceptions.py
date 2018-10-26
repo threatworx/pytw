@@ -1,6 +1,9 @@
 
 class pytw_error(Exception):
 	""" PYTW Errors """
+    """
+        :param msg: Message for the exception raised
+    """
 
 	def __init__(self, msg):
 		self.msg = msg

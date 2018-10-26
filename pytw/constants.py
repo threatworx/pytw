@@ -1,9 +1,11 @@
 """ Constants for pytw module """
 
+""" Constants for REST API calls """
 HTTPS_PREFIX = "https://"
 API_BASE_URL = "/api/v1/"
 RECENT_THREATS_URL = "threats/recent/"
 
+""" Fields of Threat Object """
 THREAT_ID = "id"
 THREAT_TITLE = "title"
 THREAT_SUMMARY = "summary"

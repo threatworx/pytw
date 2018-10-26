@@ -26,12 +26,12 @@ class Client(object):
         self.key = key
 
 
-    """
-    :param: startDateTime: An optional startDateTime argument to retrieve recent threats. 
-            Note only recent threats after startDateTime will be returned if specified.
-    :returnValue: Threats JSON in canonical form
-    """
     def getRecentThreats(self, startDateTime=None):
+        """
+        :param startDateTime: An optional startDateTime argument to retrieve recent threats. 
+                Note only recent threats after startDateTime will be returned if specified.
+        :returnValue: Threats JSON in canonical form
+        """
 
         api_url = Constants.HTTPS_PREFIX + self.host + Constants.API_BASE_URL
         api = drest.API(api_url)
@@ -50,9 +50,6 @@ class Client(object):
 
         return response.data
 
-    """
-    :param: threats: Threats JSON in canonical form (typically return value of getRecentThreats() API)
-    """
     def filterThreatsWithUpdatedField(self, threats, threat_field):
         filteredThreats = {}
         for cve in threats:
@@ -70,34 +67,38 @@ class Client(object):
 
         return filteredThreats
 
-    """
-    :param: threats: Threats JSON in canonical form (typically return value of getRecentThreats() API)
-    """
     def filterThreatsWithUpdatedPatches(self, threats):
+        """
+        :param threats: Threats JSON in canonical form (typically return value of getRecentThreats() API)
+        :returnValue: Filtered threats JSON in canonical form
+        """
         filteredThreats = self.filterThreatsWithUpdatedField(threats, Constants.THREAT_PATCHES)
         return filteredThreats
 
 
-    """
-    :param: threats: Threats JSON in canonical form (typically return value of getRecentThreats() API)
-    """
     def filterThreatsWithUpdatedRemediations(self, threats):
+        """
+        :param threats: Threats JSON in canonical form (typically return value of getRecentThreats() API)
+        :returnValue: Filtered threats JSON in canonical form
+        """
         filteredThreats = self.filterThreatsWithUpdatedField(threats, Constants.THREAT_REMEDIATIONS)
         return filteredThreats
 
     
-    """
-    :param: threats: Threats JSON in canonical form (typically return value of getRecentThreats() API)
-    """
     def filterThreatsWithUpdatedExploits(self, threats):
+        """
+        :param threats: Threats JSON in canonical form (typically return value of getRecentThreats() API)
+        :returnValue: Filtered threats JSON in canonical form
+        """
         filteredThreats = self.filterThreatWithUpdatedField(threats, Constants.THREAT_EXPLOITS)
         return filteredThreats
 
-    """
-    :param: startTime: An optional startTime argument to retrieve recent impacts. 
-               Note only recent impacts after startTime will be returned if specified
-    """
     def getRecentImpacts(self, startTime=None):
+        """
+        :param startTime: An optional startTime argument to retrieve recent impacts. 
+               Note only recent impacts after startTime will be returned if specified
+        :returnValue: Impacts JSON in canonical form
+        """
         """ TODO """
         raise pytw_error("TO BE IMPLEMENTED")
 
