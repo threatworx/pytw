@@ -17,7 +17,7 @@ Welcome to pytw's documentation!
    :caption: API
 
    api/client
-   api/pytw_error
+   api/exceptions
    api/constants
 
 Indices and tables
