@@ -2,6 +2,9 @@ import core_vuln
 import advisory_vuln
 import constants as Constants
 
+#TODO remove
+import cve_vuln_coll
+
 class CVEVuln(core_vuln.CoreVuln):
     """ CVE vulnerability object
     """
@@ -16,17 +19,4 @@ class CVEVuln(core_vuln.CoreVuln):
         : Returns an array of AdvisoryVulns which are referring to this CVE
         """
         return self.__external_references
-
-# TODO - Testing code to be removed....
-fd = open("/home/paresh/test.json", "r")
-contents = fd.read()
-fd.close()
-import pdb; pdb.set_trace()
-import json
-vulns = []
-contents_json = json.loads(contents)
-for vuln in contents_json:
-    print vuln
-    cve_vuln = CVEVuln(contents_json[vuln])
-    vulns.append(cve_vuln)
 

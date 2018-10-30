@@ -2,8 +2,10 @@
 
 """ Constants for REST API calls """
 HTTPS_PREFIX = "https://"
-API_BASE_URL = "/api/v1/"
-RECENT_THREATS_URL = "threats/recent/"
+API_BASE_URL = "api/"
+API_VERSION_1 = "v1/"
+RECENT_VULNS_URL = "threats/recent/"
+URL_FORWARD_SLASH = "/"
 
 """ Fields of Threat Object """
 VULN_ID = "id"
