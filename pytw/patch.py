@@ -1,4 +1,5 @@
 import constants as Constants
+import json
 
 class Patch(object):
     """ Patch object 
@@ -26,6 +27,15 @@ class Patch(object):
         :Returns the URL of patch
         """
         return self.__url
+
+    def toJson(self):
+        """
+        :Returns JSON representation of the object
+        """
+        return self.__patch_json
+
+    def __str__(self):
+        return json.dumps(self.__patch_json)
 
 def json2patches(patches_json):
     patches = []

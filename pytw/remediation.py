@@ -1,3 +1,6 @@
+import constants as Constants
+import json
+
 class Remediation(object):
     """ Remediation object
     Consisting of URL and Description fields
@@ -5,8 +8,8 @@ class Remediation(object):
 
     def __init__(remediation_json):
         self.__remediation_json = remediation_json
-        self.__description = self.__remediations_json[VULN_REMEDIATION_DESCRIPTION]
-        self.__url = self.__remediations_json[VULN_REMEDIATION_URL]
+        self.__description = self.__remediations_json[Constants.VULN_REMEDIATION_DESCRIPTION]
+        self.__url = self.__remediations_json[Constants.VULN_REMEDIATION_URL]
 
     def get_description(self):
         """
@@ -19,6 +22,15 @@ class Remediation(object):
         : Returns the URL for the remediation
         """
         return self.__url
+
+    def toJson(self):
+        """
+        :ReturnsJSON representation of the object
+        """
+        return self.__remediation_json
+
+    def __str__(self):
+        return json.dumps(self.__remediation_json)
 
 def json2remediations(remediations_json):
     remediations = []

@@ -1,9 +1,11 @@
 import datetime
+import json
 
 import constants as Constants
 import product
 import remediation
 import patch
+import exploit
 
 class CoreVuln(object):
 
@@ -25,7 +27,7 @@ class CoreVuln(object):
         self.__last_change = self.__vuln_json[Constants.VULN_LAST_CHANGE] if self.__vuln_json.get(Constants.VULN_LAST_CHANGE)!=None else None
         self.__references = self.__vuln_json[Constants.VULN_REFERENCES] if self.__vuln_json.get(Constants.VULN_REFERENCES)!=None else None
         self.__products = product.json2products(self.__vuln_json[Constants.VULN_PRODUCTS]) if self.__vuln_json.get(Constants.VULN_PRODUCTS)!=None else None
-        self.__exploits = self.__vuln_json[Constants.VULN_EXPLOITS] if self.__vuln_json.get(Constants.VULN_EXPLOITS)!=None else None
+        self.__exploits = exploit.json2exploits(self.__vuln_json[Constants.VULN_EXPLOITS]) if self.__vuln_json.get(Constants.VULN_EXPLOITS)!=None else None
         self.__remediations = remediation.json2remediations(self.__vuln_json[Constants.VULN_REMEDIATIONS]) if self.__vuln_json.get(Constants.VULN_REMEDIATIONS)!=None else None
         self.__patches = patch.json2patches(self.__vuln_json[Constants.VULN_PATCHES]) if self.__vuln_json.get(Constants.VULN_PATCHES)!=None else None
 
@@ -119,3 +121,11 @@ class CoreVuln(object):
         """
         return self.__patches
 
+    def toJson(self):
+        """
+        :Returns JSON representation of the object
+        """
+        return self.__vuln_json
+
+    def __str__(self):
+        return json.dumps(self.__vuln_json)

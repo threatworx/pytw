@@ -1,4 +1,5 @@
 import constants as Constants
+import json
 
 class Product(object):
     """ Product object
@@ -27,6 +28,15 @@ class Product(object):
         :Returns the version of the product
         """
         return self.__version
+
+    def toJson(self):
+        """
+        :Returns JSON representation of the object
+        """
+        return self.__product_json
+
+    def __str__(self):
+        return json.dumps(self.__product_json)
 
 def json2products(products_json):
     products = []
