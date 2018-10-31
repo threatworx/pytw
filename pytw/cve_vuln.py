@@ -2,9 +2,6 @@ import core_vuln
 import advisory_vuln
 import constants as Constants
 
-#TODO remove
-import cve_vuln_coll
-
 class CVEVuln(core_vuln.CoreVuln):
     """ CVE vulnerability object
     """

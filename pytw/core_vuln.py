@@ -1,5 +1,6 @@
 import datetime
 import json
+import copy
 
 import constants as Constants
 import product
@@ -125,7 +126,7 @@ class CoreVuln(object):
         """
         :Returns JSON representation of the object
         """
-        return self.__vuln_json
+        return copy.deepcopy(self.__vuln_json)
 
     def __str__(self):
         return json.dumps(self.__vuln_json)
