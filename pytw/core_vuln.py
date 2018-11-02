@@ -151,7 +151,7 @@ class CoreVuln(object):
             return True
         return False
 
-    def toJson(self):
+    def to_json(self):
         """
         :Returns JSON representation of the object
         """

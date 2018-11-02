@@ -1,5 +1,7 @@
-import constants as Constants
 import json
+import copy
+
+import constants as Constants
 
 class Product(object):
     """ Product object
@@ -29,11 +31,11 @@ class Product(object):
         """
         return self.__version
 
-    def toJson(self):
+    def to_json(self):
         """
         :Returns JSON representation of the object
         """
-        return self.__product_json
+        return copy.deepcopy(self.__product_json)
 
     def __str__(self):
         return json.dumps(self.__product_json)

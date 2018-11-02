@@ -1,5 +1,7 @@
-import constants as Constants
 import json
+import copy
+
+import constants as Constants
 
 class Patch(object):
     """ Patch object 
@@ -31,11 +33,11 @@ class Patch(object):
         """
         return self.__url
 
-    def toJson(self):
+    def to_json(self):
         """
         :Returns JSON representation of the object
         """
-        return self.__patch_json
+        return copy.deepcopy(self.__patch_json)
 
     def __str__(self):
         return json.dumps(self.__patch_json)

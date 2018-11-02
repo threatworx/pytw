@@ -1,5 +1,7 @@
-import constants as Constants
 import json
+import copy
+
+import constants as Constants
 
 class Remediation(object):
     """ Remediation object
@@ -23,11 +25,11 @@ class Remediation(object):
         """
         return self.__url
 
-    def toJson(self):
+    def to_json(self):
         """
         :ReturnsJSON representation of the object
         """
-        return self.__remediation_json
+        return copy.deepcopy(self.__remediation_json)
 
     def __str__(self):
         return json.dumps(self.__remediation_json)

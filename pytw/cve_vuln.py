@@ -3,7 +3,7 @@ import advisory_vuln
 import constants as Constants
 
 class CVEVuln(core_vuln.CoreVuln):
-    """ CVE vulnerability object
+    """ CVE vulnerability object - derives from CoreVuln class
     """
     def __init__(self, vuln_json):
         super(CVEVuln, self).__init__(vuln_json)
