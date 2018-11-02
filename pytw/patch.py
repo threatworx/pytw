@@ -14,7 +14,10 @@ class Patch(object):
         else:
             # TODO - remove this
             self.__product = self.__patch_json["description"]
-        self.__url = self.__patch_json[Constants.VULN_PATCH_URL]
+        if Constants.VULN_PATCH_URL in self.__patch_json:
+            self.__url = self.__patch_json[Constants.VULN_PATCH_URL]
+        else:
+            self.__url = ""
 
     def get_product(self):
         """

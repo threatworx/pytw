@@ -1,7 +1,7 @@
 """ PYTW Client module """
 
 import drest
-from .exceptions import pytw_error
+import exceptions
 import constants as Constants
 import cve_vuln
 import cve_vuln_coll
@@ -28,20 +28,23 @@ class Client(object):
         self.__key = key
 
 
-    def getRecentVulns(self, startDateTime=None):
+    def getRecentVulns(self, duration=None):
         """
-        :param startDateTime: An optional startDateTime argument to retrieve recent threats. 
-                Note only recent threats after startDateTime will be returned if specified.
+        :param duration: An optional number of days argument to retrieve recent threats. 
+                Only recent threats from last 'duration' days will be returned if specified.
         :Returns a CVEVulnCollection object containing CVEVuln instances
         """
 
         api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_1
         api = drest.API(api_url)
 
+
         # Prepare request parameters
-        if (startDateTime == None):
+        if (duration == None):
             req_params = {"handle": self.__email, "token": self.__key}
         else:
+            today  = datetime.datetime.today()
+            startDateTime = today - datetime.timedelta(days=int(duration))
             req_params = {"handle": self.__email, "token": self.__key, "startdatetime": str(startDateTime)}
 
         # Call REST API to retrieve recent threats

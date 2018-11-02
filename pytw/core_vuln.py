@@ -129,6 +129,15 @@ class CoreVuln(object):
         """
         return self.__patches
 
+    def is_new(self):
+        """
+        :Returns True if this vulnerability is newly discovered
+                 False if it has been updated atleast once
+        """
+        if 'new' in self.__last_change:
+            return True
+        return False
+
     def toJson(self):
         """
         :Returns JSON representation of the object
