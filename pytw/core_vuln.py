@@ -3,6 +3,7 @@ import json
 import copy
 
 import constants as Constants
+import vuln_rating
 import product
 import remediation
 import patch
@@ -22,7 +23,7 @@ class CoreVuln(object):
         self.__vuln_types = self.__vuln_json[Constants.VULN_VULNERABILITY_TYPES] if self.__vuln_json.get(Constants.VULN_VULNERABILITY_TYPES)!=None else None
         self.__cvss_score = self.__vuln_json[Constants.VULN_CVSS_SCORE] if self.__vuln_json.get(Constants.VULN_CVSS_SCORE)!=None else None
         self.__cvss_vector = self.__vuln_json[Constants.VULN_CVSS_VECTOR] if self.__vuln_json.get(Constants.VULN_CVSS_VECTOR)!=None else None
-        self.__rating = self.__vuln_json[Constants.VULN_RATING] if self.__vuln_json.get(Constants.VULN_RATING)!=None else None
+        self.__rating = vuln_rating.VulnRating(int(self.__vuln_json[Constants.VULN_RATING])) if self.__vuln_json.get(Constants.VULN_RATING)!=None else vuln_rating.VulnRating.Unknown
         self.__publisher = self.__vuln_json[Constants.VULN_PUBLISHER] if self.__vuln_json.get(Constants.VULN_PUBLISHER)!=None else None
         self.__published_datetime = datetime.datetime.strptime(self.__vuln_json[Constants.VULN_PUBLISHED_DATETIME], "%Y-%m-%d %H:%M:%S") if self.__vuln_json.get(Constants.VULN_PUBLISHED_DATETIME)!=None else None
         self.__last_modified_datetime = datetime.datetime.strptime(self.__vuln_json[Constants.VULN_LAST_MODIFIED_DATETIME], "%Y-%m-%d %H:%M:%S") if self.__vuln_json.get(Constants.VULN_LAST_MODIFIED_DATETIME)!=None else None
@@ -71,9 +72,21 @@ class CoreVuln(object):
 
     def get_rating(self):
         """
-        :Returns the rating as a string
+        :Returns the rating as VulnRating enum
         """
         return self.__rating
+
+    def get_rating_as_int(self):
+        """
+        :Returns the rating as an integer
+        """
+        return self.__rating.value
+
+    def get_rating_as_str(self):
+        """
+        :Returns the rating as a string for display purposes
+        """
+        return self.__rating.name
 
     def get_publisher(self):
         """
