@@ -28,7 +28,7 @@ class Client(object):
         self.__key = key
 
 
-    def getRecentVulns(self, duration=None):
+    def getRecentVulns(self, duration=None, offset=0, limit=-1):
         """
         :param duration: An optional number of days argument to retrieve recent threats. 
                 Only recent threats from last 'duration' days will be returned if specified.
@@ -40,23 +40,29 @@ class Client(object):
 
 
         # Prepare request parameters
-        if (duration == None):
-            req_params = {"handle": self.__email, "token": self.__key}
-        else:
+        req_params = {"handle": self.__email, "token": self.__key}
+
+        if (duration != None):
             today  = datetime.datetime.today()
             startDateTime = today - datetime.timedelta(days=int(duration))
-            req_params = {"handle": self.__email, "token": self.__key, "startdatetime": str(startDateTime)}
+            req_params["startdatetime"] = str(startDateTime)
+
+        if (offset != None and offset >= 0):
+            req_params['offset'] = str(offset)
+
+        if (limit != None and limit >= -1):
+            req_params['limit'] = str(limit)
 
         # Call REST API to retrieve recent threats
         response = api.make_request('GET', Constants.RECENT_VULNS_URL, params=req_params)
 
         if response.status != 200:
-            raise pytw_error("REST API call to retrieve recent threats failed")
+            raise pytw_error("REST API call to retrieve recent vulns failed")
 
         cve_vuln_collection = cve_vuln_coll.CVEVulnCollection()
         response_vulns = response.data
         for vuln in response_vulns:
-            cve_vuln_collection.append(cve_vuln.CVEVuln(response_vulns[vuln]))
+            cve_vuln_collection.append(cve_vuln.CVEVuln(vuln))
 
         return cve_vuln_collection
 
