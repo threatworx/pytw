@@ -28,24 +28,23 @@ class Client(object):
         self.__key = key
 
 
-    def getRecentVulns(self, duration=None, offset=0, limit=-1):
+    def getRecentVulns(self, window_start=None, offset=0, limit=-1):
         """
-        :param duration: An optional number of days argument to retrieve recent threats. 
-                Only recent threats from last 'duration' days will be returned if specified.
+        :param window_start: An optional number of days argument to retrieve recent vulnerabilities
+                Only recent vulnerabilities from window_start days will be returned if specified.
         :Returns a CVEVulnCollection object containing CVEVuln instances
         """
 
-        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_1
-        api = drest.API(api_url)
+        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_2
+        extra_url_params = {"handle": self.__email, "token": self.__key}
+        api = drest.API(api_url, serialize=True, extra_url_params=extra_url_params)
 
 
         # Prepare request parameters
-        req_params = {"handle": self.__email, "token": self.__key}
+        req_params = {}
 
-        if (duration != None):
-            today  = datetime.datetime.today()
-            startDateTime = today - datetime.timedelta(days=int(duration))
-            req_params["startdatetime"] = str(startDateTime)
+        if (window_start != None):
+            req_params["window_start"] = window_start
 
         if (offset != None and offset >= 0):
             req_params['offset'] = str(offset)
@@ -53,8 +52,11 @@ class Client(object):
         if (limit != None and limit >= -1):
             req_params['limit'] = str(limit)
 
+        filters = ['recent-discovered']
+        req_params['filters'] = filters
+
         # Call REST API to retrieve recent threats
-        response = api.make_request('GET', Constants.RECENT_VULNS_URL, params=req_params)
+        response = api.make_request('POST', Constants.VULNS_URL, params=req_params)
 
         if response.status != 200:
             raise pytw_error("REST API call to retrieve recent vulns failed")

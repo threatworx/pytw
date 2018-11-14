@@ -4,10 +4,11 @@
 HTTPS_PREFIX = "https://"
 API_BASE_URL = "api/"
 API_VERSION_1 = "v1/"
-RECENT_VULNS_URL = "threats/recent/"
+API_VERSION_2 = "v2/"
+VULNS_URL = "vulns/"
 URL_FORWARD_SLASH = "/"
 
-""" Fields of Threat Object """
+""" Fields of Vuln Object """
 VULN_ID = "id"
 VULN_TITLE = "title"
 VULN_SUMMARY = "summary"
