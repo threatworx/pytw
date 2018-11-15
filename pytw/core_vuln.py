@@ -18,21 +18,21 @@ class CoreVuln(object):
     def __init__(self, vuln_json):
         self.__vuln_json = vuln_json
         self.__id = self.__vuln_json[Constants.VULN_ID]
-        self.__title = self.__vuln_json[Constants.VULN_TITLE] if self.__vuln_json.get(Constants.VULN_TITLE)!=None else None
-        self.__summary = self.__vuln_json[Constants.VULN_SUMMARY] if self.__vuln_json.get(Constants.VULN_SUMMARY)!=None else None
-        self.__vuln_types = self.__vuln_json[Constants.VULN_VULNERABILITY_TYPES] if self.__vuln_json.get(Constants.VULN_VULNERABILITY_TYPES)!=None else None
-        self.__cvss_score = self.__vuln_json[Constants.VULN_CVSS_SCORE] if self.__vuln_json.get(Constants.VULN_CVSS_SCORE)!=None else None
-        self.__cvss_vector = self.__vuln_json[Constants.VULN_CVSS_VECTOR] if self.__vuln_json.get(Constants.VULN_CVSS_VECTOR)!=None else None
-        self.__rating = vuln_rating.VulnRating(int(self.__vuln_json[Constants.VULN_RATING])) if self.__vuln_json.get(Constants.VULN_RATING)!=None else vuln_rating.VulnRating.Unknown
-        self.__publisher = self.__vuln_json[Constants.VULN_PUBLISHER] if self.__vuln_json.get(Constants.VULN_PUBLISHER)!=None else None
-        self.__published_datetime = datetime.datetime.strptime(self.__vuln_json[Constants.VULN_PUBLISHED_DATETIME], "%Y-%m-%d %H:%M:%S") if self.__vuln_json.get(Constants.VULN_PUBLISHED_DATETIME)!=None else None
-        self.__last_modified_datetime = datetime.datetime.strptime(self.__vuln_json[Constants.VULN_LAST_MODIFIED_DATETIME], "%Y-%m-%d %H:%M:%S") if self.__vuln_json.get(Constants.VULN_LAST_MODIFIED_DATETIME)!=None else None
-        self.__last_change = self.__vuln_json[Constants.VULN_LAST_CHANGE] if self.__vuln_json.get(Constants.VULN_LAST_CHANGE)!=None else None
-        self.__references = self.__vuln_json[Constants.VULN_REFERENCES] if self.__vuln_json.get(Constants.VULN_REFERENCES)!=None else None
-        self.__products = product.json2products(self.__vuln_json[Constants.VULN_PRODUCTS]) if self.__vuln_json.get(Constants.VULN_PRODUCTS)!=None else None
-        self.__exploits = exploit.json2exploits(self.__vuln_json[Constants.VULN_EXPLOITS]) if self.__vuln_json.get(Constants.VULN_EXPLOITS)!=None else None
-        self.__remediations = remediation.json2remediations(self.__vuln_json[Constants.VULN_REMEDIATIONS]) if self.__vuln_json.get(Constants.VULN_REMEDIATIONS)!=None else None
-        self.__patches = patch.json2patches(self.__vuln_json[Constants.VULN_PATCHES]) if self.__vuln_json.get(Constants.VULN_PATCHES)!=None else None
+        self.__title = self.__vuln_json[Constants.VULN_TITLE] if self.__vuln_json.get(Constants.VULN_TITLE) is not None else None
+        self.__summary = self.__vuln_json[Constants.VULN_SUMMARY] if self.__vuln_json.get(Constants.VULN_SUMMARY) is not None else None
+        self.__vuln_types = self.__vuln_json[Constants.VULN_VULNERABILITY_TYPES] if self.__vuln_json.get(Constants.VULN_VULNERABILITY_TYPES) is not None else None
+        self.__cvss_score = self.__vuln_json[Constants.VULN_CVSS_SCORE] if self.__vuln_json.get(Constants.VULN_CVSS_SCORE) is not None else None
+        self.__cvss_vector = self.__vuln_json[Constants.VULN_CVSS_VECTOR] if self.__vuln_json.get(Constants.VULN_CVSS_VECTOR) is not None else None
+        self.__rating = vuln_rating.VulnRating(int(self.__vuln_json[Constants.VULN_RATING])) if self.__vuln_json.get(Constants.VULN_RATING) is not None else vuln_rating.VulnRating.Unknown
+        self.__publisher = self.__vuln_json[Constants.VULN_PUBLISHER] if self.__vuln_json.get(Constants.VULN_PUBLISHER) is not None else None
+        self.__published_datetime = datetime.datetime.strptime(self.__vuln_json[Constants.VULN_PUBLISHED_DATETIME], "%Y-%m-%d %H:%M:%S") if self.__vuln_json.get(Constants.VULN_PUBLISHED_DATETIME) is not None else None
+        self.__last_modified_datetime = datetime.datetime.strptime(self.__vuln_json[Constants.VULN_LAST_MODIFIED_DATETIME], "%Y-%m-%d %H:%M:%S") if self.__vuln_json.get(Constants.VULN_LAST_MODIFIED_DATETIME) is not None else None
+        self.__last_change = self.__vuln_json[Constants.VULN_LAST_CHANGE] if self.__vuln_json.get(Constants.VULN_LAST_CHANGE) is not None else None
+        self.__references = self.__vuln_json[Constants.VULN_REFERENCES] if self.__vuln_json.get(Constants.VULN_REFERENCES) is not None else None
+        self.__products = product.json2products(self.__vuln_json[Constants.VULN_PRODUCTS]) if self.__vuln_json.get(Constants.VULN_PRODUCTS) is not None else None
+        self.__exploits = exploit.json2exploits(self.__vuln_json[Constants.VULN_EXPLOITS]) if self.__vuln_json.get(Constants.VULN_EXPLOITS) is not None else None
+        self.__remediations = remediation.json2remediations(self.__vuln_json[Constants.VULN_REMEDIATIONS]) if self.__vuln_json.get(Constants.VULN_REMEDIATIONS) is not None else None
+        self.__patches = patch.json2patches(self.__vuln_json[Constants.VULN_PATCHES]) if self.__vuln_json.get(Constants.VULN_PATCHES) is not None else None
 
     def get_id(self):
         """

@@ -1,12 +1,14 @@
 """ PYTW Client module """
 
+import datetime
+
 import drest
+
 import exceptions
 import constants as Constants
 import cve_vuln
 import cve_vuln_coll
 
-import datetime
 
 class Client(object):
     """ User-created PYTW Client object.
@@ -16,22 +18,24 @@ class Client(object):
     :param host: Host name to connect to for API calls. Note by default connects to ThreatWatch Cloud SaaS
     """
     
-    def __init__(self, email, key, host = "api.threatwatch.io"):
+    def __init__(self, email, key, host="api.threatwatch.io"):
         if (host == ""):
-            raise pytw_error("Invalid argument - 'host'")
+            raise PyTWError("Invalid argument - 'host'")
         if (email == ""):
-            raise pytw_error("Invalid argument - 'email'")
+            raise PyTWError("Invalid argument - 'email'")
         if (key == ""):
-            raise pytw_error("Invalid argument - 'key'")
+            raise PyTWError("Invalid argument - 'key'")
         self.__host = host
         self.__email = email
         self.__key = key
 
 
-    def getRecentVulns(self, window_start=None, offset=0, limit=-1):
+    def get_recent_vulns(self, window_start=None, offset=0, limit=-1):
         """
         :param window_start: An optional number of days argument to retrieve recent vulnerabilities
                 Only recent vulnerabilities from window_start days will be returned if specified.
+        :param offset: An optional offset indicating from where to start in the result set.
+        :param limit: An optional limit indicate how many entries from offset to return in the result set.
         :Returns a CVEVulnCollection object containing CVEVuln instances
         """
 
@@ -43,13 +47,13 @@ class Client(object):
         # Prepare request parameters
         req_params = {}
 
-        if (window_start != None):
+        if (window_start is not None):
             req_params["window_start"] = window_start
 
-        if (offset != None and offset >= 0):
+        if (offset is not None and offset >= 0):
             req_params['offset'] = str(offset)
 
-        if (limit != None and limit >= -1):
+        if (limit is not None and limit >= -1):
             req_params['limit'] = str(limit)
 
         filters = ['recent-discovered']
@@ -59,7 +63,7 @@ class Client(object):
         response = api.make_request('POST', Constants.VULNS_URL, params=req_params)
 
         if response.status != 200:
-            raise pytw_error("REST API call to retrieve recent vulns failed")
+            raise PyTWError("REST API call to retrieve recent vulns failed")
 
         cve_vuln_collection = cve_vuln_coll.CVEVulnCollection()
         response_vulns = response.data
@@ -68,12 +72,16 @@ class Client(object):
 
         return cve_vuln_collection
 
-    def getRecentImpacts(self, startTime=None):
+    def get_recent_impacts(self, window_start=None):
         """
         :param startTime: An optional startTime argument to retrieve recent impacts. 
                Note only recent impacts after startTime will be returned if specified
+        :param window_start: An optional number of days argument to retrieve recent impacts
+                Only recent impacts from window_start days will be returned if specified.
+        :param offset: An optional offset indicating from where to start in the result set.
+        :param limit: An optional limit indicate how many entries from offset to return in the result set.
         :returnValue: Impacts JSON in canonical form
         """
         """ TODO """
-        raise pytw_error("TO BE IMPLEMENTED")
+        raise PyTWError("TO BE IMPLEMENTED")
 

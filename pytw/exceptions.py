@@ -1,5 +1,5 @@
 
-class pytw_error(Exception):
+class PyTWError(Exception):
     """ PYTW Errors """
     """
         :param msg: Message for the exception raised

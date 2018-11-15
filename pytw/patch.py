@@ -11,7 +11,7 @@ class Patch(object):
     def __init__(self, patch_json):
         self.__patch_json = patch_json
         self.__id = self.__patch_json[Constants.VULN_PATCH_ID]
-        if (self.__patch_json.get(Constants.VULN_PATCH_PRODUCT) != None):
+        if (self.__patch_json.get(Constants.VULN_PATCH_PRODUCT) is not None):
             self.__product = self.__patch_json[Constants.VULN_PATCH_PRODUCT]
         else:
             # TODO - remove this
