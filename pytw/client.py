@@ -3,6 +3,7 @@
 import datetime
 
 import drest
+from drest import exc
 
 import exceptions
 import constants as Constants
@@ -39,7 +40,7 @@ class Client(object):
         :Returns a CVEVulnCollection object containing CVEVuln instances
         """
 
-        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_2
+        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_1
         extra_url_params = {"handle": self.__email, "token": self.__key}
         api = drest.API(api_url, serialize=True, extra_url_params=extra_url_params)
 
@@ -59,12 +60,17 @@ class Client(object):
         filters = ['recent-discovered']
         req_params['filters'] = filters
 
-        # Call REST API to retrieve recent threats
-        response = api.make_request('POST', Constants.VULNS_URL, params=req_params)
+        try:
 
-        if response.status != 200:
-            raise PyTWError("REST API call to retrieve recent vulns failed")
+            # Call REST API to retrieve recent threats
+            response = api.make_request('POST', Constants.VULNS_URL, params=req_params)
 
+        except exc.dRestRequestError as req_error:
+            if (req_error.response.status == 404):
+                return cve_vuln_coll.CVEVulnCollection()
+            else:
+                raise PyTWError("REST API call to retrieve recent vulns failed")
+    
         cve_vuln_collection = cve_vuln_coll.CVEVulnCollection()
         response_vulns = response.data
         for vuln in response_vulns:
