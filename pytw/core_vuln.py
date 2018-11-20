@@ -3,7 +3,7 @@ import json
 import copy
 
 import constants as Constants
-import vuln_rating
+import rating
 import product
 import remediation
 import patch
@@ -11,7 +11,7 @@ import exploit
 
 class CoreVuln(object):
 
-    """ Cure Vulnerability object.
+    """ Core Vulnerability object.
 
     :param vuln_json: Vulnerability JSON in canonical form
     """
@@ -23,7 +23,7 @@ class CoreVuln(object):
         self.__vuln_types = self.__vuln_json[Constants.VULN_VULNERABILITY_TYPES] if self.__vuln_json.get(Constants.VULN_VULNERABILITY_TYPES) is not None else None
         self.__cvss_score = self.__vuln_json[Constants.VULN_CVSS_SCORE] if self.__vuln_json.get(Constants.VULN_CVSS_SCORE) is not None else None
         self.__cvss_vector = self.__vuln_json[Constants.VULN_CVSS_VECTOR] if self.__vuln_json.get(Constants.VULN_CVSS_VECTOR) is not None else None
-        self.__rating = vuln_rating.VulnRating(int(self.__vuln_json[Constants.VULN_RATING])) if self.__vuln_json.get(Constants.VULN_RATING) is not None else vuln_rating.VulnRating.Unknown
+        self.__rating = rating.Rating(int(self.__vuln_json[Constants.RATING])) if self.__vuln_json.get(Constants.RATING) is not None else rating.Rating.Unknown
         self.__publisher = self.__vuln_json[Constants.VULN_PUBLISHER] if self.__vuln_json.get(Constants.VULN_PUBLISHER) is not None else None
         self.__published_datetime = datetime.datetime.strptime(self.__vuln_json[Constants.VULN_PUBLISHED_DATETIME], "%Y-%m-%d %H:%M:%S") if self.__vuln_json.get(Constants.VULN_PUBLISHED_DATETIME) is not None else None
         self.__last_modified_datetime = datetime.datetime.strptime(self.__vuln_json[Constants.VULN_LAST_MODIFIED_DATETIME], "%Y-%m-%d %H:%M:%S") if self.__vuln_json.get(Constants.VULN_LAST_MODIFIED_DATETIME) is not None else None
