@@ -5,6 +5,8 @@ import copy
 import constants as Constants
 import rating
 import impact_status
+import advisory_vuln
+import cve_vuln
 
 class Impact(object):
 
@@ -22,6 +24,12 @@ class Impact(object):
         self.__rating = rating.Rating(int(self.__impact_json[Constants.RATING])) if self.__impact_json.get(Constants.RATING) is not None else rating.Rating.Unknown
         self.__status = self.__get_status_enum(self.__impact_json[Constants.IMPACT_STATUS]) if self.__impact_json.get(Constants.IMPACT_STATUS) is not None else None
         self.__timestamp = datetime.datetime.strptime(self.__impact_json[Constants.IMPACT_TIMESTAMP], "%Y-%m-%d %H:%M:%S") if self.__impact_json.get(Constants.IMPACT_TIMESTAMP) is not None else None
+        vuln_id = impact_json[Constants.IMPACT_VULNERABILITY][Constants.VULN_ID]
+        if (vuln_id.startswith("CVE-")):
+            self.__vuln = cve_vuln.CVEVuln(impact_json[Constants.IMPACT_VULNERABILITY])
+        else:
+            self.__vuln = advisory_vuln.AdvisoryVuln(impact_json[Constants.IMPACT_VULNERABILITY])
+	
 
     def __get_status_enum(self, status_str):
         if (status_str == "OPEN"):
@@ -90,6 +98,12 @@ class Impact(object):
         :Returns the timestamp of this impact
         """
         return self.__timestamp
+
+    def get_vulnerability(self):
+        """
+        :Returns the vulnerability object associated with this impact
+        """
+        return self.__vuln
 
     def to_json(self):
         """

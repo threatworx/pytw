@@ -79,41 +79,51 @@ class Client(object):
 
         return cve_vuln_collection
 
-    def get_impacts(self, window_start=None, threshold=None):
+    def get_recent_impacts(self, window_start=None, threshold=None, offset=0, limit=-1):
         """
         :param window_start: An optional number of days argument to retrieve recent impacts
                 Only recent impacts from window_start days will be returned if specified.
         :param threshold: An optional threshold, only impacts with confidence greater than threshold will be returned
         :param offset: An optional offset indicating from where to start in the result set.
         :param limit: An optional limit indicate how many entries from offset to return in the result set.
-        :returnValue: A VulnImpactCollection object containing instances of VulnImpact objects.
+        :returnValue: A ImpactCollection object containing instances of Impact objects.
         """
 
-        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_1
+        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_2
         extra_url_params = {"handle": self.__email, "token": self.__key, "format": "json"}
-        api = drest.API(api_url, extra_url_params=extra_url_params)
+        api = drest.API(api_url, serialize=True, extra_url_params=extra_url_params)
 
         # Prepare request parameters
         req_params = {}
 
         if (window_start is not None):
             req_params["duration"] = window_start
+
         if (threshold is not None):
             req_params["threshold"] = threshold
+
+        if (offset is not None and offset >= 0):
+            req_params['offset'] = str(offset)
+
+        if (limit is not None and limit >= -1):
+            req_params['limit'] = str(limit)
+
+        filters = ['recent']
+        req_params['filters'] = filters
 
         try:
 
             # Call REST API to retrieve recent threats
-            response = api.make_request('GET', Constants.VULN_IMPACTS_URL, params=req_params)
+            response = api.make_request('POST', Constants.IMPACTS_URL, params=req_params)
 
         except exc.dRestRequestError as req_error:
             if (req_error.response.status == 404):
                 return vuln_impact_coll.VulnImpactCollection()
             else:
-                raise PyTWError("REST API call to retrieve vuln impacts failed")
+                raise PyTWError("REST API call to retrieve impacts failed")
     
         impact_collection = impact_coll.ImpactCollection()
-        response_impacts = response.data
+        response_impacts = response.data["impacts"]
         for imp in response_impacts:
             impact_collection.append(impact.Impact(imp))
 
