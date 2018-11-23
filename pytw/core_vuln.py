@@ -130,17 +130,29 @@ class CoreVuln(object):
         """
         return self.__exploits
 
-    def get_remediations(self):
+    def get_remediations(self, publisher=None):
         """
         :Returns the list of remediations
         """
-        return self.__remediations
+        if (publisher is None):
+            return self.__remediations
+        else:
+            if (publisher == self.__publisher):
+                return self.__remediations
+            else:
+                return []
 
-    def get_patches(self):
+    def get_patches(self, publisher=None):
         """
         :Returns the list of patches
         """
-        return self.__patches
+        if (publisher is None):
+            return self.__patches
+        else:
+            if (publisher == self.__publisher):
+                return self.__patches
+            else:
+                return []
 
     def is_new(self):
         """

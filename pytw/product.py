@@ -40,6 +40,10 @@ class Product(object):
     def __str__(self):
         return json.dumps(self.__product_json)
 
+    def __repr__(self):
+        return json.dumps(self.__product_json)
+
+
 def json2products(products_json):
     products = []
     for p in products_json:

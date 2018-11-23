@@ -42,6 +42,10 @@ class Patch(object):
     def __str__(self):
         return json.dumps(self.__patch_json)
 
+    def __repr__(self):
+        return json.dumps(self.__patch_json)
+
+
 def json2patches(patches_json):
     patches = []
     for p in patches_json:

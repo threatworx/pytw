@@ -34,6 +34,10 @@ class Remediation(object):
     def __str__(self):
         return json.dumps(self.__remediation_json)
 
+    def __repr__(self):
+        return json.dumps(self.__remediation_json)
+
+
 def json2remediations(remediations_json):
     remediations = []
     for r in remediations_json:

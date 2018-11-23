@@ -34,3 +34,43 @@ class CVEVuln(core_vuln.CoreVuln):
         """
         return self.__advisories
 
+    def get_patches(self, publisher=None):
+        """
+        : Returns the consolidated patches for this CVE across all its advisories.
+        """
+        patches = []
+        for vuln in self.get_advisories():
+            patches.extend(vuln.get_patches(publisher))
+        return patches
+
+    def get_remediations(self, publisher=None):
+        """
+        : Returns the consolidated remediations for this CVE across all its advisories.
+        """
+        remediations = []
+        for vuln in self.get_advisories():
+            remediations.extend(vuln.get_remediations(publisher))
+        return remediations
+
+    def get_exploits(self):
+        """
+        : Returns the consolidated exploits for this CVE across all its advisories.
+        """
+        exploits = []
+        for vuln in self.get_advisories():
+            exploits.extend(vuln.get_exploits())
+        return exploits
+
+    def get_references(self):
+        """
+        : Returns the consodlidated references for this CVE across all its advisories.
+        """
+        refs_list = []
+        cve_references = super(CVEVuln, self).get_references()
+        if (cve_references is not None):
+            refs_list.extend(cve_references)
+        for vuln in self.get_advisories():
+            refs_list.extend(vuln.get_references())
+        refs_set = set(refs_list)
+        return list(refs_set)
+
