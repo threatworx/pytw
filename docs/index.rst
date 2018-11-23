@@ -23,11 +23,16 @@ Welcome to pytw's documentation!
    api/advisory_vuln
    api/cve_vuln
    api/cve_vuln_coll
+   api/impact
+   api/impact_coll
    api/product
    api/patch
    api/remediation
    api/exploit
-   api/vuln_rating
+   api/rating
+   api/impact_status
+   api/search_params
+   api/search_filter
 
 Indices and tables
 ==================
