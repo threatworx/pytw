@@ -14,7 +14,6 @@ import impact_status
 import impact
 import impact_coll
 import search_params
-import search_filter
 
 class Client(object):
     """ User-created PYTW Client object.
@@ -35,10 +34,9 @@ class Client(object):
         self.__email = email
         self.__key = key
 
-    def get_vulns(self, search_params, search_filter):
+    def get_vulns(self, search_params):
         """
         :param search_params: An object of type SearchParams
-        :param search_filter: An object of type SearchFilter
         :Returns a CVEVulnCollection object containing CVEVuln instances
         """
 
@@ -48,12 +46,12 @@ class Client(object):
 
         # Prepare request parameters
         req_params = search_params.to_dict()
-        req_params[Constants.SEARCH_FILTERS] = search_filter.to_dict()
+        req_headers = { "Accept": "application/json"}
 
         try:
 
             # Call REST API to retrieve recent threats
-            response = api.make_request('POST', Constants.VULNS_URL, params=req_params)
+            response = api.make_request('POST', Constants.VULNS_URL, params=req_params, headers=req_headers)
 
         except exc.dRestRequestError as req_error:
             if (req_error.response.status == 404):
@@ -62,11 +60,26 @@ class Client(object):
                 raise exceptions.PyTWError("REST API call to retrieve vulns failed")
     
         cve_vuln_collection = cve_vuln_coll.CVEVulnCollection()
-        response_vulns = response.data
+        response_vulns = response.data["vulns"]
         for vuln in response_vulns:
             cve_vuln_collection.append(cve_vuln.CVEVuln(vuln))
 
         return cve_vuln_collection
+
+    def get_vulns_by_vuln_ids(self, vuln_ids_list, window_start=None, offset=0, limit=-1):
+        """
+        :param vuln_ids_list: A list of vulnerability IDs to filter for.
+        :param window_start: An optional number of days argument to retrieve vulnerabilities
+                Only vulnerabilities from window_start days will be returned if specified.
+        :param offset: An optional offset indicating from where to start in the result set.
+        :param limit: An optional limit indicate how many entries from offset to return in the result set.
+        :Returns a CVEVulnCollection object containing CVEVuln instances
+        """
+
+        search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
+        search_params_var.add_vuln_ids_filter(vuln_ids_list)
+
+        return self.get_vulns(search_params_var)
 
     def get_vulns_by_rating(self, ratings, window_start=None, offset=0, limit=-1):
         """
@@ -78,14 +91,10 @@ class Client(object):
         :Returns a CVEVulnCollection object containing CVEVuln instances
         """
 
-        temp_ratings = []
-        for r in ratings:
-            temp_ratings.append(str(r.value))
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_RATING, temp_ratings)
+        search_params_var.add_ratings_filter(ratings)
 
-        return self.get_vulns(search_params_var, search_filter_var)
+        return self.get_vulns(search_params_var)
 
     def get_vulns_by_publisher(self, publishers, window_start=None, offset=0, limit=-1):
         """
@@ -98,28 +107,9 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_PUBLISHER, publishers)
+        search_params_var.add_publishers_filter(publishers)
 
-        return self.get_vulns(search_params_var, search_filter_var)
-
-    def get_impacting_vulns(self, threshold=None, window_start=None, offset=0, limit=-1):
-        """
-        :param threshold: An optional threshold to filter on.
-        :param window_start: An optional number of days argument to retrieve vulnerabilities
-                Only vulnerabilities from window_start days will be returned if specified.
-        :param offset: An optional offset indicating from where to start in the result set.
-        :param limit: An optional limit indicate how many entries from offset to return in the result set.
-        :Returns a CVEVulnCollection object containing CVEVuln instances
-        """
-
-        search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_IMPACTING_VULNS)
-        if (threshold is not None):
-            search_filter_var.add_filter(Constants.SEARCH_FILTER_THRESHOLD, threshold)
-
-        return self.get_vulns(search_params_var, search_filter_var)
+        return self.get_vulns(search_params_var)
 
     def get_vulns_by_threshold(self, threshold, window_start=None, offset=0, limit=-1):
         """
@@ -132,10 +122,9 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_THRESHOLD, threshold)
+        search_params_var.add_threshold_filter(threshold)
 
-        return self.get_vulns(search_params_var, search_filter_var)
+        return self.get_vulns(search_params_var)
 
     def get_vulns_with_exploits(self, window_start=None, offset=0, limit=-1):
         """
@@ -147,10 +136,9 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_EXPLOITABLE)
+        search_params_var.add_exploitable_filter()
 
-        return self.get_vulns(search_params_var, search_filter_var)
+        return self.get_vulns(search_params_var)
 
     def get_vulns_with_patches(self, window_start=None, offset=0, limit=-1):
         """
@@ -162,10 +150,9 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_PATCH_AVAILABLE)
+        search_params_var.add_patch_available_filter()
 
-        return self.get_vulns(search_params_var, search_filter_var)
+        return self.get_vulns(search_params_var)
 
     def get_vulns_with_remediations(self, window_start=None, offset=0, limit=-1):
         """
@@ -177,10 +164,9 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_REMEDIATION_AVAILABLE)
+        search_params_var.add_remediation_available_filter()
 
-        return self.get_vulns(search_params_var, search_filter_var)
+        return self.get_vulns(search_params_var)
 
     def get_tracked_vulns(self, window_start=None, offset=0, limit=-1):
         """
@@ -192,10 +178,9 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_TRACKED_VULNS)
+        search_params_var.add_tracked_vulns_filter()
 
-        return self.get_vulns(search_params_var, search_filter_var)
+        return self.get_vulns(search_params_var)
 
     def get_recent_vulns(self, window_start=None, offset=0, limit=-1):
         """
@@ -207,15 +192,13 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(SEARCH_FILTER_RECENT_DISCOVERED_VULNS)
+        search_params_var.add_recent_vulns_filter()
 
-        return self.get_vulns(search_params_var, search_filter_var)
+        return self.get_vulns(search_params_var)
 
-    def get_impacts(self, search_params, search_filter):
+    def get_impacts(self, search_params):
         """
         :param search_params: An object of type SearchParams
-        :param search_filter: An object of type SearchFilter
         :Returns an ImpactCollection object containing instances of Impact objects.
         """
 
@@ -225,12 +208,12 @@ class Client(object):
 
         # Prepare request parameters
         req_params = search_params.to_dict()
-        req_params[Constants.SEARCH_FILTERS] = search_filter.to_dict()
+        req_headers = { "Accept": "application/json"}
 
         try:
 
             # Call REST API to retrieve recent threats
-            response = api.make_request('POST', Constants.IMPACTS_URL, params=req_params)
+            response = api.make_request('POST', Constants.IMPACTS_URL, params=req_params, headers=req_headers)
 
         except exc.dRestRequestError as req_error:
             if (req_error.response.status == 404):
@@ -256,12 +239,41 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(SEARCH_FILTER_RECENT_IMPACTS)
+        search_params_var.add_recent_impacts_filter()
         if threshold is not None:
-           search_filter.var.add_filter(SEARCH_FILTER_THRESHOLD, threshold)
+           search_params_var.add_threshold_filter(threshold)
 
-        return self.get_impacts(search_params_var, search_filter_var)
+        return self.get_impacts(search_params_var)
+
+    def get_impacts_by_asset_ids(self, asset_ids_list, window_start=None, offset=0, limit=-1):
+        """
+        :param asset_ids_list: A list of asset IDs to filter for.
+        :param window_start: An optional number of days argument to retrieve impacts
+                Only recent vulnerabilities from window_start days will be returned if specified.
+        :param offset: An optional offset indicating from where to start in the result set.
+        :param limit: An optional limit indicate how many entries from offset to return in the result set.
+        :Returns an ImpactCollection object containing instances of Impact objects which meet the criteria.
+        """
+
+        search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
+        search_params_var.add_asset_ids_filter(asset_ids_list)
+
+        return self.get_impacts(search_params_var)
+
+    def get_impacts_by_vuln_ids(self, vuln_ids_list, window_start=None, offset=0, limit=-1):
+        """
+        :param vuln_ids_list: A list of vuln IDs to filter for.
+        :param window_start: An optional number of days argument to retrieve impacts
+                Only recent vulnerabilities from window_start days will be returned if specified.
+        :param offset: An optional offset indicating from where to start in the result set.
+        :param limit: An optional limit indicate how many entries from offset to return in the result set.
+        :Returns an ImpactCollection object containing instances of Impact objects which meet the criteria.
+        """
+
+        search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
+        search_params_var.add_vuln_ids_filter(vuln_ids_list)
+
+        return self.get_impacts(search_params_var)
 
     def get_impacts_by_rating(self, ratings, window_start=None, offset=0, limit=-1):
         """
@@ -273,14 +285,10 @@ class Client(object):
         :Returns an ImpactCollection object containing instances of Impact objects which meet the criteria.
         """
 
-        temp_ratings = []
-        for r in ratings:
-            temp_ratings.append(str(r.value))
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_RATING, temp_ratings)
+        search_params_var.add_ratings_filter(ratings)
 
-        return self.get_impacts(search_params_var, search_filter_var)
+        return self.get_impacts(search_params_var)
 
     def get_impacts_with_exploits(self, window_start=None, offset=0, limit=-1):
         """
@@ -292,10 +300,9 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_EXPLOITABLE)
+        search_params_var.add_exploitable_filter()
 
-        return self.get_impacts(search_params_var, search_filter_var)
+        return self.get_impacts(search_params_var)
 
     def get_impacts_with_patches(self, window_start=None, offset=0, limit=-1):
         """
@@ -307,10 +314,9 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_PATCH_AVAILABLE)
+        search_params_var.add_patch_available_filter()
 
-        return self.get_impacts(search_params_var, search_filter_var)
+        return self.get_impacts(search_params_var)
 
     def get_impacts_with_remediations(self, window_start=None, offset=0, limit=-1):
         """
@@ -322,10 +328,9 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_REMEDIATION_AVAILABLE)
+        search_params_var.add_remediation_available_filter()
 
-        return self.get_impacts(search_params_var, search_filter_var)
+        return self.get_impacts(search_params_var)
 
     def get_impacts_by_threshold(self, threshold, window_start=None, offset=0, limit=-1):
         """
@@ -338,12 +343,11 @@ class Client(object):
         """
 
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_THRESHOLD, threshold)
+        search_params_var.add_threshold_filter(threshold)
 
-        return self.get_impacts(search_params_var, search_filter_var)
+        return self.get_impacts(search_params_var)
 
-    def get_impacts_by_status(self, statuses, window_start=None, offset=0, limit=-1):
+    def get_impacts_by_status(self, status_list, window_start=None, offset=0, limit=-1):
         """
         :param threshold: Only Impacts with specified status values will be returned
         :param window_start: An optional number of days argument to retrieve impacts
@@ -352,12 +356,8 @@ class Client(object):
         :param limit: An optional limit indicate how many entries from offset to return in the result set.
         :Returns an ImpactCollection object containing instances of Impact objects.
         """
-        status_list = []
-        for s in statuses:
-            status_list.append(s.name)
         search_params_var = search_params.SearchParams(window_start=window_start, offset=offset, limit=limit)
-        search_filter_var = search_filter.SearchFilter()
-        search_filter_var.add_filter(Constants.SEARCH_FILTER_IMPACT_STATUS, status_list)
+        search_params_var.add_impact_status_filter(status_list)
 
-        return self.get_impacts(search_params_var, search_filter_var)
+        return self.get_impacts(search_params_var)
 

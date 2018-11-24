@@ -32,7 +32,6 @@ Welcome to pytw's documentation!
    api/rating
    api/impact_status
    api/search_params
-   api/search_filter
 
 Indices and tables
 ==================
