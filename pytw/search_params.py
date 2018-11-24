@@ -4,7 +4,7 @@ import constants as Constants
 
 class SearchParams(object):
     """ SearchParams object 
-    Consisting of multiple parameters related to search operation. Arguments to create new SearchParams object:
+
     :param window_start: Number of days in the past to start search. Default is 1 day ago.
     :param window_end: Number of days in the past to end search. Default is 0 i.e. today.
     :param offset: Offset in result set. Used for pagination. Default is to start from first record.
@@ -65,6 +65,8 @@ class SearchParams(object):
     def add_threshold_filter(self, threshold):
         """
         :param threshold: Return only results which cross the threshold.
+        For Vulns, get vulnerabilities with relevance greater than or equal to threshold.
+        For Impacts, get impact with confidence values greater than or equal to threshold.
         """
         self.__threshold = threshold
 

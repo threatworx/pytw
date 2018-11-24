@@ -17,6 +17,7 @@ Welcome to pytw's documentation!
    :caption: API
 
    api/client
+   api/search_params
    api/exceptions
    api/constants
    api/core_vuln
@@ -31,7 +32,6 @@ Welcome to pytw's documentation!
    api/exploit
    api/rating
    api/impact_status
-   api/search_params
 
 Indices and tables
 ==================
