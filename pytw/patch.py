@@ -27,6 +27,12 @@ class Patch(object):
         """
         return self.__product
 
+    def get_id(self):
+        """
+        :Returns the ID of patch
+        """
+        return self.__id
+
     def get_url(self):
         """
         :Returns the URL of patch
