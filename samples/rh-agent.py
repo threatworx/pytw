@@ -14,8 +14,8 @@ def get_asset_type():
     os_type = platform.dist()[0]
     if "centos" in os_type:
         return "CentOS"
-    elif "Ubuntu" in os_type:
-        return "Ubuntu"
+    elif "redhat" in os_type:
+        return "Red Hat"
     else:
         return None
 
