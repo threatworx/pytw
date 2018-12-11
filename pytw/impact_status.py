@@ -7,4 +7,5 @@ class Status(enum.Enum):
     OPEN = 0
     RESOLVED = 1
     IGNORED = 2
+    NOT_RELEVANT = 3
 

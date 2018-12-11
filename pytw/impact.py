@@ -38,6 +38,8 @@ class Impact(object):
             return impact_status.Status(1)
         if (status_str == "IGNORED"):
             return impact_status.Status(2)
+        if (status_str == "NOT_RELEVANT"):
+            return impact_status.Status(3)
 
     def get_vuln_id(self):
         """
