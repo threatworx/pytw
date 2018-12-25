@@ -1,6 +1,9 @@
 """ PYTW Client module """
 
 import datetime
+import urllib
+from httplib2 import Http
+import json
 
 import drest
 from drest import exc
@@ -14,6 +17,8 @@ import impact_status
 import impact
 import impact_coll
 import search_params
+from asset import Asset as Asset
+import asset_coll
 
 class Client(object):
     """ User-created PYTW Client object.
@@ -360,4 +365,174 @@ class Client(object):
         search_params_var.add_impact_status_filter(status_list)
 
         return self.get_impacts(search_params_var)
+
+    def get_assets(self, search_params):
+        """
+        :param search_params: The search parameters for the search
+        :Returns The specified asset object
+        """
+
+        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_2
+
+        # Prepare request parameters
+        req_params = []
+        search_params_dict = search_params.to_dict(include_window_params=False)
+        asset_id = search_params_dict.get(Constants.SEARCH_PARAM_ASSET_ID)
+        search_params_dict["handle"] = self.__email
+        search_params_dict["token"] = self.__key
+        search_params_dict["format"] = "json"
+        req_headers = { "Accept": "application/json"}
+
+        try:
+
+            # Call REST API to retrieve recent threats
+            if asset_id is not None:
+                asset_url = api_url + Constants.ASSETS_URL + asset_id + Constants.URL_FORWARD_SLASH
+            else:
+                asset_url = api_url + Constants.ASSETS_URL
+            asset_url = asset_url + '?' + urllib.urlencode(search_params_dict, True)
+            http_obj = Http()
+            response = http_obj.request(uri=asset_url, method='GET', headers=req_headers)
+
+        except:
+            raise exceptions.PyTWError("REST API call to retrieve specified asset failed")
+        if asset_id is not None:
+            asset_json = json.loads(response[1])
+            ret_val = Asset(asset_json=asset_json)
+        else:
+            assets_json = json.loads(response[1])
+            ret_val = asset_coll.AssetCollection() 
+            for asset_json in assets_json:
+                temp_asset = Asset(asset_json=asset_json)
+                ret_val.append(temp_asset)
+
+        return ret_val
+
+    def get_asset_by_id(self, asset_id):
+        """
+        :param asset_id: Specifies ID of the asset to be retrieved.
+        :Returns an Asset object.
+        """
+        search_params_var = search_params.SearchParams()
+        search_params_var.add_asset_id_filter(asset_id)
+        return self.get_assets(search_params_var)
+
+    def get_assets_by_types(self, types_list):
+        """
+        :param types_list: Specifies the types of the assets to be retrieved.
+        :Returns an AssetCollection object.
+        """
+        search_params_var = search_params.SearchParams()
+        search_params_var.add_asset_types_filter(types_list)
+        return self.get_assets(search_params_var)
+
+    def get_assets_by_names(self, names_list):
+        """
+        :param names_list: Specifies the names of the assets to be retrieved.
+        :Returns an AssetCollection object.
+        """
+        search_params_var = search_params.SearchParams()
+        search_params_var.add_asset_names_filter(names_list)
+        return self.get_assets(search_params_var)
+
+    def get_assets_by_locations(self, locations_list):
+        """
+        :param locations_list: Specifies locations of the assets to be retrieved.
+        :Returns an AssetCollection object.
+        """
+        search_params_var = search_params.SearchParams()
+        search_params_var.add_asset_locations_filter(locations_list)
+        return self.get_assets(search_params_var)
+
+    def get_assets_by_product(self, product):
+        """
+        :param product: Retrieves assets containing specified product
+        :Returns an AssetCollection object.
+        """
+        search_params_var = search_params.SearchParams()
+        search_params_var.add_asset_product_filter(product)
+        return self.get_assets(search_params_var)
+
+    def get_assets_by_patch(self, patch):
+        """
+        :param patch: Retrieves assets containing specified patch
+        :Returns an AssetCollection object.
+        """
+        search_params_var = search_params.SearchParams()
+        search_params_var.add_asset_patch_filter(patch)
+        return self.get_assets(search_params_var)
+
+    def get_assets_with_open_impacts(self):
+        """
+        :Retrieves assets with open impacts
+        :Returns an AssetCollection object.
+        """
+        search_params_var = search_params.SearchParams()
+        search_params_var.add_asset_with_open_impacts_filter()
+        return self.get_assets(search_params_var)
+
+    def get_my_assets(self):
+        """
+        :Retrieves assets for current user
+        :Returns an AssetCollection object.
+        """
+        search_params_var = search_params.SearchParams()
+        search_params_var.add_my_asset_filter()
+        return self.get_assets(search_params_var)
+
+    def create_asset(self, asset):
+        """
+        :param asset: The asset to be created
+        : Returns Response JSON with 'status'
+        """
+
+        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_2
+        extra_url_params = {"handle": self.__email, "token": self.__key, "format": "json"}
+        api = drest.API(api_url, serialize=True, extra_url_params=extra_url_params)
+
+        # Prepare request parameters
+        req_params = asset.to_json()
+        # Perform basic validation of the asset
+        if req_params[Constants.ASSET_ID] == "" or req_params[Constants.ASSET_OWNER] == "":
+            raise exceptions.PyTWError("Asset should contain Id and Owner")
+        req_headers = { "Accept": "application/json"}
+
+        try:
+
+            # Call REST API to retrieve recent threats
+            response = api.make_request('POST', Constants.ASSETS_URL, params=req_params, headers=req_headers)
+
+        except exc.dRestRequestError as req_error:
+            raise exceptions.PyTWError("REST API call to create asset failed")
+    
+        return response.data
+
+    def update_asset(self, asset):
+        """
+        :param asset: The asset to be updated
+        : Returns Response JSON with 'status' or None if asset had no changes
+        """
+
+        if asset.is_updated() == False:
+            return None
+
+        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_2
+        extra_url_params = {"handle": self.__email, "token": self.__key, "format": "json"}
+        api = drest.API(api_url, serialize=True, extra_url_params=extra_url_params)
+
+        # Prepare request parameters
+        req_params = asset.to_json()
+        asset_id = req_params[Constants.ASSET_ID]
+        asset_url = Constants.ASSETS_URL + asset_id + Constants.URL_FORWARD_SLASH
+        req_headers = { "Accept": "application/json"}
+
+        try:
+
+            # Call REST API to retrieve recent threats
+            response = api.make_request('PUT', asset_url, params=req_params, headers=req_headers)
+
+        except exc.dRestRequestError as req_error:
+            raise exceptions.PyTWError("REST API call to update asset failed")
+    
+        return response.data
 

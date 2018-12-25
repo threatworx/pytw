@@ -32,6 +32,8 @@ Welcome to pytw's documentation!
    api/exploit
    api/rating
    api/impact_status
+   api/asset
+   api/asset_coll
 
 Indices and tables
 ==================

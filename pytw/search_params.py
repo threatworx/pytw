@@ -23,6 +23,12 @@ class SearchParams(object):
         self.__vuln_ids = None
         self.__threshold = None
         self.__impact_status = None
+        self.__asset_id = None
+        self.__asset_types = None
+        self.__asset_names = None
+        self.__asset_locations = None
+        self.__asset_product = None
+        self.__asset_patch = None
         self.__predefined_filters = []
 
     def add_ratings_filter(self, ratings_list):
@@ -78,6 +84,57 @@ class SearchParams(object):
         for s in status_list:
             self.__impact_status.append(s.name.lower())
 
+    def add_asset_id_filter(self, asset_id):
+        """
+        :param asset_id: The asset ID of the asset to retrieve
+        """
+        self.__asset_id = asset_id
+
+    def add_asset_types_filter(self, types_list):
+        """
+        :param types_list: A list of asset types to filter by.
+        """
+        self.__asset_types = []
+        self.__asset_types.extend(types_list)
+
+    def add_asset_names_filter(self, names_list):
+        """
+        :param names_list: A list of asset names to filter by.
+        """
+        self.__asset_names = []
+        self.__asset_names.extend(names_list)
+
+    def add_asset_locations_filter(self, locations_list):
+        """
+        :param locations_list: A list of locations to filter by.
+        """
+        self.__asset_locations = []
+        self.__asset_locations.extend(locations_list)
+
+    def add_asset_product_filter(self, product):
+        """
+        :param product: Filter assets containing specified product 
+        """
+        self.__asset_product = product
+
+    def add_asset_patch_filter(self, patch):
+        """
+        :param patch: Filter assets containing specified patch 
+        """
+        self.__asset_patch = patch
+
+    def add_asset_with_open_impacts_filter(self):
+        """
+        Filter only assets with open impacts
+        """
+        self.__predefined_filters.append(Constants.SEARCH_FILTER_ASSETS_WITH_OPEN_IMPACTS)
+
+    def add_my_asset_filter(self):
+        """
+        Filter only my assets
+        """
+        self.__predefined_filters.append(Constants.SEARCH_FILTER_MY_ASSETS)
+
     def add_recent_vulns_filter(self):
         """
         Filter only recent vulns i.e. not yet notified.
@@ -120,15 +177,16 @@ class SearchParams(object):
         """
         self.__predefined_filters.append(Constants.SEARCH_FILTER_REMEDIATION_AVAILABLE)
 
-    def to_dict(self):
+    def to_dict(self, include_window_params = True):
         """ 
         Convert the SearchParams to a dict object
         """
         dict_obj = {}
-        dict_obj[Constants.SEARCH_PARAM_WINDOW_START] = self.__window_start
-        dict_obj[Constants.SEARCH_PARAM_WINDOW_END] = self.__window_end
-        dict_obj[Constants.SEARCH_PARAM_OFFSET] = self.__offset
-        dict_obj[Constants.SEARCH_PARAM_LIMIT] = self.__limit
+        if include_window_params == True:
+            dict_obj[Constants.SEARCH_PARAM_WINDOW_START] = self.__window_start
+            dict_obj[Constants.SEARCH_PARAM_WINDOW_END] = self.__window_end
+            dict_obj[Constants.SEARCH_PARAM_OFFSET] = self.__offset
+            dict_obj[Constants.SEARCH_PARAM_LIMIT] = self.__limit
         if self.__ratings is not None:
             dict_obj[Constants.SEARCH_PARAM_RATINGS] = self.__ratings
         if self.__publishers is not None:
@@ -143,6 +201,18 @@ class SearchParams(object):
             dict_obj[Constants.SEARCH_PARAM_THRESHOLD] = self.__threshold
         if self.__impact_status is not None:
             dict_obj[Constants.SEARCH_PARAM_IMPACT_STATUS] = self.__impact_status
+        if self.__asset_id is not None:
+            dict_obj[Constants.SEARCH_PARAM_ASSET_ID] = self.__asset_id
+        if self.__asset_names is not None:
+            dict_obj[Constants.SEARCH_PARAM_ASSET_NAMES] = self.__asset_names
+        if self.__asset_types is not None:
+            dict_obj[Constants.SEARCH_PARAM_ASSET_TYPES] = self.__asset_types
+        if self.__asset_locations is not None:
+            dict_obj[Constants.SEARCH_PARAM_ASSET_LOCATIONS] = self.__asset_locations
+        if self.__asset_product is not None:
+            dict_obj[Constants.SEARCH_PARAM_ASSET_PRODUCT] = self.__asset_product
+        if self.__asset_patch is not None:
+            dict_obj[Constants.SEARCH_PARAM_ASSET_PATCH] = self.__asset_patch
         if len(self.__predefined_filters) > 0:
             dict_obj[Constants.SEARCH_PARAM_FILTERS] = self.__predefined_filters
     
