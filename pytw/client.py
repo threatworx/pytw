@@ -366,6 +366,38 @@ class Client(object):
 
         return self.get_impacts(search_params_var)
 
+    def update_impact(self, impact):
+        """
+        :param impact: The impact to be updated
+        : Returns Response JSON with 'status' or None if the impact had no updates
+        """
+
+        if impact.is_updated() == False:
+            return None
+
+        api_url = Constants.HTTPS_PREFIX + self.__host + Constants.URL_FORWARD_SLASH + Constants.API_BASE_URL + Constants.API_VERSION_1
+        extra_url_params = {"handle": self.__email, "token": self.__key, "format": "json"}
+        api = drest.API(api_url, serialize=True, extra_url_params=extra_url_params)
+
+        # Prepare request parameters
+        req_params = search_params.SearchParams()
+        req_params.add_asset_ids_filter([impact.get_asset_id()])
+        req_params.add_vuln_ids_filter([impact.get_vuln_id()])
+        req_params.add_products_filter([impact.get_affected_product()])
+        req_params = req_params.to_dict(include_window_params=False)
+        req_params[Constants.IMPACT_NEW_STATUS] = impact.get_status().name
+        req_headers = { "Accept": "application/json"}
+
+        try:
+
+            # Call REST API to retrieve recent threats
+            response = api.make_request('PATCH', Constants.IMPACTS_URL, params=req_params, headers=req_headers)
+
+        except exc.dRestRequestError as req_error:
+            raise exceptions.PyTWError("REST API call to update impact failed")
+    
+        return response.data
+
     def get_assets(self, search_params):
         """
         :param search_params: The search parameters for the search

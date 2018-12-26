@@ -7,6 +7,7 @@ import rating
 import impact_status
 import advisory_vuln
 import cve_vuln
+import exceptions
 
 class Impact(object):
 
@@ -15,11 +16,12 @@ class Impact(object):
     :param impact_json: Impact JSON in canonical form
     """
     def __init__(self, impact_json):
+        self.__is_dirty = False
         self.__impact_json = impact_json
         self.__vuln_id = self.__impact_json[Constants.IMPACT_VULN_ID]
         self.__asset_id = self.__impact_json[Constants.IMPACT_ASSET_ID] if self.__impact_json.get(Constants.IMPACT_ASSET_ID) is not None else None
-        self.__product = self.__impact_json[Constants.IMPACT_PRODUCT] if self.__impact_json.get(Constants.IMPACT_PRODUCT) is not None else None
-        self.__keyword = self.__impact_json[Constants.IMPACT_KEYWORD] if self.__impact_json.get(Constants.IMPACT_KEYWORD) is not None else None
+        self.__affected_product = self.__impact_json[Constants.IMPACT_AFFECTED_PRODUCT] if self.__impact_json.get(Constants.IMPACT_AFFECTED_PRODUCT) is not None else None
+        self.__vulnerable_product = self.__impact_json[Constants.IMPACT_VULNERABLE_PRODUCT] if self.__impact_json.get(Constants.IMPACT_VULNERABLE_PRODUCT) is not None else None
         self.__confidence = int(self.__impact_json[Constants.IMPACT_CONFIDENCE]) if self.__impact_json.get(Constants.IMPACT_CONFIDENCE) is not None else None
         self.__rating = rating.Rating(int(self.__impact_json[Constants.RATING])) if self.__impact_json.get(Constants.RATING) is not None else rating.Rating.Unknown
         self.__status = self.__get_status_enum(self.__impact_json[Constants.IMPACT_STATUS]) if self.__impact_json.get(Constants.IMPACT_STATUS) is not None else None
@@ -29,7 +31,12 @@ class Impact(object):
             self.__vuln = cve_vuln.CVEVuln(impact_json[Constants.IMPACT_VULNERABILITY])
         else:
             self.__vuln = advisory_vuln.AdvisoryVuln(impact_json[Constants.IMPACT_VULNERABILITY])
-	
+
+    def is_updated(self):
+        """
+        :Returns True if impact has been modified
+        """
+        return self.__is_dirty
 
     def __get_status_enum(self, status_str):
         if (status_str == "OPEN"):
@@ -40,6 +47,7 @@ class Impact(object):
             return impact_status.Status(2)
         if (status_str == "NOT_RELEVANT"):
             return impact_status.Status(3)
+        raise exceptions.PyTWError("Invalid status ["+status_str+"] specified")
 
     def get_vuln_id(self):
         """
@@ -53,17 +61,17 @@ class Impact(object):
         """
         return self.__asset_id
 
-    def get_product(self):
+    def get_affected_product(self):
         """
-        :Returns a string containing the product from the vulnerability
+        :Returns a string containing the affected product from the vulnerability
         """
-        return self.__product
+        return self.__affected_product
 
-    def get_keyword(self):
+    def get_vulnerable_product(self):
         """
-        :Returns a string containing the product from the asset
+        :Returns a string containing the vulnerable product from the asset
         """
-        return self.__keyword
+        return self.__vulnerable_product
 
     def get_confidence(self):
         """
@@ -94,6 +102,14 @@ class Impact(object):
         :Returns the status as a string
         """
         return self.__status
+
+    def set_status(self, new_status):
+        """
+        :Sets the status as a string
+        """
+        self.__status= self.__get_status_enum(new_status)
+        self.__impact_json[Constants.IMPACT_STATUS] = self.__status.name
+        self.__is_dirty = True
 
     def get_timestamp(self):
         """

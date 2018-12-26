@@ -21,6 +21,7 @@ class SearchParams(object):
         self.__free_text_search = None
         self.__asset_ids = None
         self.__vuln_ids = None
+        self.__products = None
         self.__threshold = None
         self.__impact_status = None
         self.__asset_id = None
@@ -67,6 +68,13 @@ class SearchParams(object):
         """
         self.__vuln_ids = []
         self.__vuln_ids.extend(vuln_ids_list)
+
+    def add_products_filter(self, products_list):
+        """
+        :param products_list: A list of products to filter on.
+        """
+        self.__products = []
+        self.__products.extend(products_list)
 
     def add_threshold_filter(self, threshold):
         """
@@ -197,6 +205,8 @@ class SearchParams(object):
             dict_obj[Constants.SEARCH_PARAM_ASSET_IDS] = self.__asset_ids
         if self.__vuln_ids is not None:
             dict_obj[Constants.SEARCH_PARAM_VULN_IDS] = self.__vuln_ids
+        if self.__products is not None:
+            dict_obj[Constants.SEARCH_PARAM_PRODUCTS] = self.__products
         if self.__threshold is not None:
             dict_obj[Constants.SEARCH_PARAM_THRESHOLD] = self.__threshold
         if self.__impact_status is not None:
