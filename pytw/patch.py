@@ -14,7 +14,6 @@ class Patch(object):
         if (self.__patch_json.get(Constants.VULN_PATCH_PRODUCT) is not None):
             self.__product = self.__patch_json[Constants.VULN_PATCH_PRODUCT]
         else:
-            # TODO - remove this
             self.__product = self.__patch_json["description"]
         if Constants.VULN_PATCH_URL in self.__patch_json:
             self.__url = self.__patch_json[Constants.VULN_PATCH_URL]
