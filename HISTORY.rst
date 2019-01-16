@@ -6,3 +6,8 @@ History
 ------------------
 
 * First release on PyPI.
+
+1.0.0 (2019-01-16)
+------------------
+
+* Official public release on PyPI.

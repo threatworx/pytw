@@ -26,7 +26,7 @@ ThreatWatch opensource API
 Features
 --------
 
-* TODO
+* Refer to documentation.
 
 Credits
 -------
