@@ -16,21 +16,12 @@ def get_asset_type():
         return "CentOS"
     elif "redhat" in os_type:
         return "Red Hat"
+    elif "Ubuntu" in os_type:
+        return "Ubuntu"
     else:
-        return None
+        return "Other" 
 
-def discover(args):
-    handle = args.handle
-    token = args.token
-    instance = args.instance
-    downloadonly = args.downloadonly
-    download_directory =  args.downloaddir
-    asset_id = args.assetid
-    url = "https://" + instance + "/api/v1"
-    asset_url = url + '/assets/' + asset_id
-    auth_data = "handle=" + handle + "&token=" + token + "&format=json"
-
-    # Prepare the product version list for asset
+def discover_rh():
     plist = []
     cmdarr = ["/usr/bin/yum", "list", "installed"]
     logging.info("Retrieving product details from host")
@@ -53,6 +44,43 @@ def discover(args):
         logging.debug("Found product [%s %s]", pkg, ver)
         plist.append(pkg+' '+ver)
     logging.info("Completed retrieval of product details from host")
+    return plist
+
+def discover_ubuntu():
+    plist = []
+    cmdarr = ["/usr/bin/apt", "list", "--installed"]
+    logging.info("Retrieving product details from host")
+    yumout = subprocess.check_output(cmdarr)
+    for l in yumout.splitlines():
+        if 'Listing...' in l:
+            continue
+        lsplit = l.split()
+        pkg = lsplit[0].split('/')[0]
+        ver = lsplit[1]
+        logging.debug("Found product [%s %s]", pkg, ver)
+        plist.append(pkg+' '+ver)
+    logging.info("Completed retrieval of product details from host")
+    return plist
+
+def discover(args):
+    handle = args.handle
+    token = args.token
+    instance = args.instance
+    downloadonly = args.downloadonly
+    download_directory =  args.downloaddir
+    asset_id = args.assetid
+    url = "https://" + instance + "/api/v1"
+    asset_url = url + '/assets/' + asset_id
+    auth_data = "handle=" + handle + "&token=" + token + "&format=json"
+
+    atype = get_asset_type()
+    print atype
+
+    if atype == 'Red Hat' or atype == 'CentOS':
+        plist = discover_rh()
+    elif atype == 'Ubuntu':
+        plist = discover_ubuntu()
+    print plist
 
     if downloadonly == True:
         filepath = download_directory
@@ -72,7 +100,7 @@ def discover(args):
     resp = requests.get(asset_url + '/type?' + auth_data)
     if resp.status_code != 200:
         # Asset does not exist so create one
-        asset_data = "?name=" + asset_id + "&os=CentOS&" + auth_data
+        asset_data = "?name=" + asset_id + "&os=" + atype + "&" + auth_data
         resp = requests.post(asset_url + asset_data)
         if resp.status_code == 200:
             # Asset created successfully, so try to set the type for this asset
@@ -81,9 +109,9 @@ def discover(args):
             if (asset_type is not None):
                 resp = requests.post(asset_url + '/type/' + asset_type + '?' + auth_data)
                 if resp.status_code == 200:
-                    logging.info("Successfully set the type [CentOS] for asset [%s]", asset_id)
+                    logging.info("Successfully set the type ["+atype+"] for asset [%s]", asset_id)
                 else:
-                    logging.error("Failed to set type [CentOS] for asset [%s]", asset_id)
+                    logging.error("Failed to set type ["+atype+"] for asset [%s]", asset_id)
                     logging.error("Response details: %s", resp.content)
             else:
                 logging.error("Unable to detect type of asset...")
@@ -198,6 +226,9 @@ logging.getLogger('').addHandler(console)
 logging.info('Started new run...')
 logging.debug('Arguments: %s', str(args))
 
+if get_asset_type() == "Other":
+    logging.info('Not a supported platform')
+    sys.exit(1)
 if args.mode == "discover":
     discover(args)
 if args.mode == "patch":
