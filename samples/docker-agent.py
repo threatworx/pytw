@@ -8,6 +8,7 @@ import logging
 import requests
 import json
 import traceback
+import urllib
 
 def docker_available():
     retcode = os.system("/usr/bin/docker ps 1> /dev/null 2>&1")
@@ -22,8 +23,6 @@ def get_asset_type(args):
     try:
         out = subprocess.check_output(cmdarr, shell=True)
     except subprocess.CalledProcessError:
-        print traceback.format_exc()
-        traceback.print_exc(file=sys.stdout)
         logging.error("Error determining os type: "+args.image)
         return None 
     if 'CentOS' in out:
@@ -137,7 +136,7 @@ def discover(args, atype):
     instance = args.instance
     asset_id = None
     if args.assetid == None:
-        asset_id = args.image + '-' + get_image_id(args)
+        asset_id = args.image
     else:
         asset_id = args.assetid
     asset_name = None
@@ -145,6 +144,11 @@ def discover(args, atype):
         asset_name = args.image
     else:
         asset_name = args.assetname
+    print asset_id
+    asset_id = asset_id.replace('/','-')
+    asset_id = asset_id.replace(':','-')
+    asset_name = asset_name.replace('/','-')
+    asset_name = asset_name.replace(':','-')
     url = "https://" + instance + "/api/v1"
     asset_url = url + '/assets/' + asset_id
     auth_data = "handle=" + handle + "&token=" + token + "&format=json"
@@ -207,10 +211,10 @@ logfilename = "docker.log"
 logging_level = logging.INFO
 
 parser = argparse.ArgumentParser(description='Docker agent helps discover docker assets of the Linux family')
-parser.add_argument('--handle', help='The email id/handle of the user', required=True)
-parser.add_argument('--token', help='The API token of the user', required=True)
+parser.add_argument('--handle', help='The ThreatWatch registered email id/handle of the user', required=True)
+parser.add_argument('--token', help='The ThreatWatch API token of the user', required=True)
 parser.add_argument('--instance', help='The ThreatWatch instance. Defaults to ThreatWatch Cloud SaaS.', default='api.threatwatch.io')
-parser.add_argument('--image', help='The docker image which needs to be inspected', required=True)
+parser.add_argument('--image', help='The docker image (repo:tag) which needs to be inspected. If tag is not given, "latest" will be assumed.', required=True)
 parser.add_argument('--assetid', help='A unique ID to be assigned to the discovered asset')
 parser.add_argument('--assetname', help='A name/label to be assigned to the discovered asset')
 args = parser.parse_args()
@@ -228,8 +232,9 @@ logging.debug('Arguments: %s', str(args))
 if not docker_available():
     sys.exit(1)
 
-if not pull_image(args):
-    sys.exit(1)
+if not get_image_id(args):
+    if not pull_image(args):
+        sys.exit(1)
 
 atype = get_asset_type(args)
 if not atype:
