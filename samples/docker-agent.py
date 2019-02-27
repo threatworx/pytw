@@ -10,15 +10,17 @@ import json
 import traceback
 import urllib
 
+docker_cli = ""
+
 def docker_available():
-    retcode = os.system("/usr/bin/docker ps 1> /dev/null 2>&1")
-    if retcode != 0:
-        logger.error("Docker service/CLI not available")
-        return False
-    return True
+    if os.path.isfile("/usr/bin/docker"):
+        return "/usr/bin/docker"
+    elif os.path.isfile("/usr/local/bin/docker"):
+        return "/usr/local/bin/docker"
+    return None 
 
 def get_asset_type(args):
-    cmdarr = ['/usr/bin/docker run -i -t '+args.image+' /bin/sh -c "/bin/cat /etc/os-release"']
+    cmdarr = [docker_cli+' run -i -t '+args.image+' /bin/sh -c "/bin/cat /etc/os-release"']
     out = ''
     try:
         out = subprocess.check_output(cmdarr, shell=True)
@@ -35,8 +37,28 @@ def get_asset_type(args):
         logging.error('Not a supported os type')
         return None
 
+def get_os_release(args):
+    cmdarr = [docker_cli+' run -i -t '+args.image+' /bin/sh -c "/bin/cat /etc/os-release"']
+    out = ''
+    try:
+        out = subprocess.check_output(cmdarr, shell=True)
+    except subprocess.CalledProcessError:
+        logging.error("Error determining os type: "+args.image)
+        return None 
+    for l in out.splitlines():
+        if 'PRETTY_NAME' in l:
+            return l.split('=')[1].replace('"','')
+    return None
+
+def apply_tag(url, asset_id, auth_data, tag):
+    url = url + "/assets/tags"
+    if tag == None or tag == '':
+        return None
+    resp = requests.post(url + '?' + auth_data + '&tagname='+tag+'&assetid='+asset_id)
+    return None
+
 def pull_image(args):
-    cmdarr = ["/usr/bin/docker", "pull", args.image]
+    cmdarr = [docker_cli, "pull", args.image]
     try:
         out = subprocess.check_output(cmdarr)
     except subprocess.CalledProcessError:
@@ -45,7 +67,7 @@ def pull_image(args):
     return True
 
 def get_image_id(args):
-    cmdarr = ["/usr/bin/docker", "images", args.image]
+    cmdarr = [docker_cli, "images", args.image]
     out = ''
     try:
         out = subprocess.check_output(cmdarr)
@@ -62,7 +84,7 @@ def get_image_id(args):
 
 def discover_rh(args):
     plist = []
-    cmdarr = ['/usr/bin/docker run -i -t '+args.image+' /bin/sh -c "/usr/bin/yum list installed"']
+    cmdarr = [docker_cli+' run -i -t '+args.image+' /bin/sh -c "/usr/bin/yum list installed"']
     logging.info("Retrieving product details from image")
     yumout = ''
     try:
@@ -102,7 +124,7 @@ def discover_rh(args):
 
 def discover_ubuntu(args):
     plist = []
-    cmdarr = ['/usr/bin/docker run -i -t '+args.image+' /bin/sh -c "/usr/bin/apt list --installed"']
+    cmdarr = [docker_cli+' run -i -t '+args.image+' /bin/sh -c "/usr/bin/apt list --installed"']
     logging.info("Retrieving product details from image")
     yumout = ''
     try:
@@ -144,7 +166,6 @@ def discover(args, atype):
         asset_name = args.image
     else:
         asset_name = args.assetname
-    print asset_id
     asset_id = asset_id.replace('/','-')
     asset_id = asset_id.replace(':','-')
     asset_name = asset_name.replace('/','-')
@@ -181,6 +202,12 @@ def discover(args, atype):
             else:
                 logging.error("Unable to detect type of asset...")
                 logging.error("Not setting asset type...")
+            os = get_os_release(args)
+            apply_tag(url, asset_id, auth_data, 'OS_RELEASE:'+os)
+            apply_tag(url, asset_id, auth_data, 'Docker')
+            apply_tag(url, asset_id, auth_data, 'Container')
+            apply_tag(url, asset_id, auth_data, 'Linux')
+            apply_tag(url, asset_id, auth_data, atype)
         else:
             logging.error("Failed to create new asset [%s]", asset_id)
             logging.error("Response details: %s", resp.content)
@@ -207,7 +234,7 @@ def discover(args, atype):
 
 
 # Entry code
-logfilename = "docker.log"
+logfilename = "docker-agent.log"
 logging_level = logging.INFO
 
 parser = argparse.ArgumentParser(description='Docker agent helps discover docker assets of the Linux family')
@@ -229,7 +256,8 @@ logging.getLogger('').addHandler(console)
 logging.info('Started new run...')
 logging.debug('Arguments: %s', str(args))
 
-if not docker_available():
+docker_cli = docker_available()
+if not docker_cli:
     sys.exit(1)
 
 if not get_image_id(args):
