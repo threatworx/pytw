@@ -10,8 +10,8 @@ class Remediation(object):
 
     def __init__(self, remediation_json):
         self.__remediation_json = remediation_json
-        self.__description = self.__remediation_json[Constants.VULN_REMEDIATION_DESCRIPTION]
-        self.__url = self.__remediation_json[Constants.VULN_REMEDIATION_URL]
+        self.__description = self.__remediation_json.get(Constants.VULN_REMEDIATION_DESCRIPTION)
+        self.__url = self.__remediation_json.get(Constants.VULN_REMEDIATION_URL)
 
     def get_description(self):
         """

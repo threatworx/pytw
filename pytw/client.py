@@ -213,6 +213,7 @@ class Client(object):
 
         # Prepare request parameters
         req_params = search_params.to_dict()
+        req_params['include-vuln-details'] = True
         req_headers = { "Accept": "application/json"}
 
         try:

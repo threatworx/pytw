@@ -32,6 +32,9 @@ class SearchParams(object):
         self.__asset_patch = None
         self.__predefined_filters = []
 
+    def set_offset(self, offset):
+        self.__offset = offset
+
     def add_ratings_filter(self, ratings_list):
         """ 
         :param ratings_list: A list of rating.Rating enum values to filter on.
