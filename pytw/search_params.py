@@ -1,6 +1,6 @@
 import json
 
-import constants as Constants
+from . import constants as Constants
 
 class SearchParams(object):
     """ SearchParams object 
@@ -194,10 +194,10 @@ class SearchParams(object):
         """
         dict_obj = {}
         if include_window_params == True:
-            dict_obj[Constants.SEARCH_PARAM_WINDOW_START] = self.__window_start
-            dict_obj[Constants.SEARCH_PARAM_WINDOW_END] = self.__window_end
-            dict_obj[Constants.SEARCH_PARAM_OFFSET] = self.__offset
-            dict_obj[Constants.SEARCH_PARAM_LIMIT] = self.__limit
+            dict_obj[Constants.SEARCH_PARAM_WINDOW_START] = str(self.__window_start)
+            dict_obj[Constants.SEARCH_PARAM_WINDOW_END] = str(self.__window_end)
+            dict_obj[Constants.SEARCH_PARAM_OFFSET] = str(self.__offset)
+            dict_obj[Constants.SEARCH_PARAM_LIMIT] = str(self.__limit)
         if self.__ratings is not None:
             dict_obj[Constants.SEARCH_PARAM_RATINGS] = self.__ratings
         if self.__publishers is not None:

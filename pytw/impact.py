@@ -2,12 +2,12 @@ import datetime
 import json
 import copy
 
-import constants as Constants
-import rating
-import impact_status
-import advisory_vuln
-import cve_vuln
-import exceptions
+from . import constants as Constants
+from . import rating
+from . import impact_status
+from . import advisory_vuln
+from . import cve_vuln
+from . import exceptions
 
 class Impact(object):
 

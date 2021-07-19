@@ -1,7 +1,7 @@
 import json
 import copy
 
-import constants as Constants
+from . import constants as Constants
 
 class Product(object):
     """ Product object

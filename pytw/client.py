@@ -1,5 +1,5 @@
 """ PYTW Client module """
-
+import sys
 import datetime
 import urllib
 from httplib2 import Http
@@ -8,17 +8,17 @@ import json
 import drest
 from drest import exc
 
-import exceptions
-import constants as Constants
-import rating
-import cve_vuln
-import cve_vuln_coll
-import impact_status
-import impact
-import impact_coll
-import search_params
-from asset import Asset as Asset
-import asset_coll
+from . import exceptions
+from . import constants as Constants
+from . import rating
+from . import cve_vuln
+from . import cve_vuln_coll
+from . import impact_status
+from . import impact
+from . import impact_coll
+from . import search_params
+from .asset import Asset as Asset
+from . import asset_coll
 
 class Client(object):
     """ User-created PYTW Client object.
@@ -423,7 +423,10 @@ class Client(object):
                 asset_url = api_url + Constants.ASSETS_URL + asset_id + Constants.URL_FORWARD_SLASH
             else:
                 asset_url = api_url + Constants.ASSETS_URL
-            asset_url = asset_url + '?' + urllib.urlencode(search_params_dict, True)
+            if sys.version_info[0] < 3:
+                asset_url = asset_url + '?' + urllib.urlencode(search_params_dict, True)
+            else:
+                asset_url = asset_url + '?' + urllib.parse.urlencode(search_params_dict, True)
             http_obj = Http()
             response = http_obj.request(uri=asset_url, method='GET', headers=req_headers)
 

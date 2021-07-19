@@ -1,8 +1,8 @@
 import datetime
 
-import core_vuln
-import advisory_vuln
-import constants as Constants
+from . import core_vuln
+from . import advisory_vuln
+from . import constants as Constants
 
 class CVEVuln(core_vuln.CoreVuln):
     """ CVE vulnerability object - derives from CoreVuln class

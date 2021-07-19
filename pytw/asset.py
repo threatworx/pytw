@@ -1,8 +1,8 @@
 import json
 import copy
 
-import constants as Constants
-import exceptions
+from . import constants as Constants
+from . import exceptions
 
 class Asset(object):
 
