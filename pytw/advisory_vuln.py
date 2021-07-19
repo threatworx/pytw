@@ -1,4 +1,4 @@
-import core_vuln
+from . import core_vuln
 
 class AdvisoryVuln(core_vuln.CoreVuln):
     """ A vulnerability advisory object - derives from CoreVuln class

@@ -2,12 +2,12 @@ import datetime
 import json
 import copy
 
-import constants as Constants
-import rating
-import product
-import remediation
-import patch
-import exploit
+from . import constants as Constants
+from . import rating
+from . import product
+from . import remediation
+from . import patch
+from . import exploit
 
 class CoreVuln(object):
 
